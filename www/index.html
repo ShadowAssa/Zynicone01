@@ -1,0 +1,3466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VIP FILES - USER PANEL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Background Sharingan */
+        .sharingan-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+            overflow: hidden;
+        }
+        
+        .sharingan {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,0,0,0.2) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        .sharingan::before, .sharingan::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid rgba(255,0,0,0.3);
+        }
+        
+        .sharingan::before { transform: rotate(120deg); }
+        .sharingan::after { transform: rotate(240deg); }
+        
+        .tomoe {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(255,0,0,0.6) 0%, transparent 80%);
+            border-radius: 50%;
+        }
+        
+        .tomoe:nth-child(1) { top: 30px; left: 50%; transform: translateX(-50%); }
+        .tomoe:nth-child(2) { bottom: 30px; left: 30%; }
+        .tomoe:nth-child(3) { bottom: 30px; right: 30%; }
+        
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        /* Container */
+        .container {
+            max-width: 460px;
+            margin: 0 auto;
+            padding: 70px 12px 20px;
+            position: relative;
+            z-index: 1;
+            display: none;
+        }
+        
+        /* ========== MAINTENANCE PAGE ========== */
+        .maintenance-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            backdrop-filter: blur(20px);
+            z-index: 1000000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .maintenance-page.active { display: flex; }
+        
+        .maintenance-content {
+            max-width: 460px;
+            width: 94%;
+            background: linear-gradient(145deg, #1a0a0a, #2a0a0a);
+            border: 3px solid #ff4444;
+            border-radius: 40px;
+            padding: 40px 24px;
+            text-align: center;
+        }
+        
+        .maintenance-icon { font-size: 70px; color: #ff4444; margin-bottom: 20px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+        
+        .maintenance-title {
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff4444, #ff8888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        
+        .maintenance-message { font-size: 16px; margin-bottom: 25px; line-height: 1.6; }
+        
+        .maintenance-timer-container {
+            background: rgba(255,0,0,0.1);
+            border-radius: 25px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid rgba(255,0,0,0.5);
+        }
+        
+        .maintenance-timer-title { color: #ffaa00; font-size: 16px; margin-bottom: 10px; }
+        .maintenance-timer { font-size: 48px; font-weight: 900; color: #ff4444; font-family: monospace; }
+        .maintenance-progress { height: 10px; background: rgba(255,0,0,0.2); border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        .maintenance-progress-bar { height: 100%; background: linear-gradient(90deg, #ff4444, #ff8888); width: 0%; transition: width 0.5s; }
+        
+        .maintenance-info {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .maintenance-info-item {
+            background: rgba(255,0,0,0.1);
+            border-radius: 16px;
+            padding: 15px;
+            border: 2px solid rgba(255,0,0,0.3);
+        }
+        
+        .maintenance-info-label { color: #ffaa00; font-size: 13px; margin-bottom: 5px; }
+        .maintenance-info-value { color: #fff; font-size: 16px; font-weight: 600; }
+        
+        .maintenance-refresh-btn {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        /* ========== NOTIFICATION POPUP ========== */
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(145deg, #1a1a1a, #2a0a0a);
+            border: 3px solid #ff4444;
+            border-radius: 30px;
+            padding: 20px;
+            z-index: 1000000;
+            box-shadow: 0 20px 50px rgba(255,0,0,0.5);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            max-width: 460px;
+            width: 94%;
+        }
+        
+        .notification-popup.active { opacity: 1; visibility: visible; top: 30px; }
+        .notification-title { font-size: 22px; color: #ff4444; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .notification-message { font-size: 16px; margin: 12px 0; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 18px; }
+        .notification-date { color: #ffaa00; font-size: 13px; }
+        .notification-close { background: rgba(255,68,68,0.2); border: 2px solid #ff4444; color: white; padding: 12px; border-radius: 40px; width: 100%; margin-top: 16px; cursor: pointer; text-align: center; font-weight: bold; }
+        
+        /* ========== APP UPDATE POPUP ========== */
+        .app-update-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            padding: 16px;
+        }
+        
+        .app-update-popup.active { opacity: 1; visibility: visible; }
+        
+        .app-update-content {
+            background: linear-gradient(145deg, #1a0f0f, #2a1a1a);
+            border-radius: 40px;
+            padding: 30px 24px;
+            border: 3px solid #ffd700;
+            max-width: 460px;
+            width: 94%;
+            transform: scale(0.9);
+            transition: 0.3s;
+        }
+        
+        .app-update-popup.active .app-update-content { transform: scale(1); }
+        
+        .app-update-icon { font-size: 60px; color: #ffd700; text-align: center; margin-bottom: 10px; }
+        .app-update-title { font-size: 28px; font-weight: 900; color: #ffd700; text-align: center; margin-bottom: 20px; }
+        
+        .app-update-detail {
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        
+        .app-update-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,215,0,0.2);
+        }
+        
+        .app-update-row:last-child { border: none; }
+        .app-update-label { color: #ffd700; font-weight: bold; }
+        .app-update-value { color: white; text-align: right; word-break: break-word; max-width: 60%; }
+        
+        .app-upgrade-btn {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #000;
+            border: none;
+            padding: 16px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 18px;
+            width: 100%;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        
+        .app-update-close {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #ffd700;
+            color: white;
+            padding: 14px;
+            border-radius: 30px;
+            width: 100%;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+        
+        /* ========== VIP UPDATE POPUP (HANYA UNTUK VIP) ========== */
+        .vip-update-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            backdrop-filter: blur(30px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.4s;
+            padding: 16px;
+        }
+        
+        .vip-update-popup.active { opacity: 1; visibility: visible; }
+        
+        .vip-update-content {
+            background: linear-gradient(135deg, #1a0000, #2d0000);
+            border-radius: 40px;
+            padding: 30px 24px;
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 100px rgba(255,215,0,0.5);
+            max-width: 460px;
+            width: 94%;
+            transform: scale(0.9);
+            transition: 0.5s;
+        }
+        
+        .vip-update-popup.active .vip-update-content { transform: scale(1); }
+        
+        .vip-update-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .vip-update-icon { font-size: 50px; color: #ffd700; }
+        .vip-update-title { font-size: 32px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffaa00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .vip-update-badge { background: linear-gradient(135deg, #ff0000, #cc0000); color: white; padding: 6px 16px; border-radius: 50px; font-size: 14px; font-weight: bold; display: inline-block; margin-left: 10px; border: 2px solid #ffd700; }
+        
+        .vip-update-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .vip-update-info-item {
+            background: rgba(0,0,0,0.7);
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid rgba(255,215,0,0.5);
+        }
+        
+        .vip-update-info-label { color: #ffd700; font-size: 14px; margin-bottom: 10px; }
+        .vip-update-info-value { color: white; font-size: 18px; font-weight: bold; }
+        
+        .vip-update-description {
+            background: rgba(255,215,0,0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid rgba(255,215,0,0.5);
+        }
+        
+        .vip-update-description-title { color: #ffd700; font-size: 18px; margin-bottom: 15px; }
+        .vip-update-description-text { color: white; font-size: 15px; line-height: 1.6; }
+        
+        .vip-update-link-container {
+            background: rgba(0,0,0,0.8);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 2px solid #4caf50;
+        }
+        
+        .vip-update-link { color: #4caf50; font-size: 14px; word-break: break-all; flex: 1; }
+        .vip-update-copy-btn { background: linear-gradient(135deg, #4caf50, #2e7d32); color: white; border: none; padding: 12px 20px; border-radius: 15px; cursor: pointer; font-weight: bold; }
+        .vip-update-close-btn { background: linear-gradient(135deg, #ff3333, #cc0000); color: white; border: none; padding: 16px 30px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%; margin-top: 20px; }
+        
+        /* ========== VIP GLOBAL UPDATE POPUP (HANYA UNTUK VIP) ========== */
+        .vip-global-update-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            backdrop-filter: blur(30px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.5s;
+            padding: 16px;
+        }
+        
+        .vip-global-update-popup.active { opacity: 1; visibility: visible; }
+        
+        .vip-global-update-content {
+            background: linear-gradient(145deg, #1a0a0a, #2a0a0a);
+            border-radius: 50px;
+            padding: 30px 24px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 150px rgba(255,215,0,0.5);
+            max-width: 460px;
+            width: 94%;
+            transform: scale(0.9);
+            transition: 0.5s;
+        }
+        
+        .vip-global-update-popup.active .vip-global-update-content { transform: scale(1); }
+        
+        .vip-global-update-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .vip-global-update-icon { font-size: 70px; color: #ffd700; }
+        .vip-global-update-title-section { flex: 1; }
+        .vip-global-update-title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffaa00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .vip-global-update-badge { background: linear-gradient(135deg, #ff0000, #b30000); color: #ffd700; padding: 6px 16px; border-radius: 50px; font-size: 13px; border: 2px solid #ffd700; display: inline-block; margin-top: 8px; }
+        
+        .vip-global-update-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .vip-global-update-item {
+            background: rgba(0,0,0,0.7);
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid rgba(255,215,0,0.5);
+        }
+        
+        .vip-global-update-item-label { color: #ffd700; font-size: 13px; margin-bottom: 10px; }
+        .vip-global-update-item-value { color: white; font-size: 16px; font-weight: bold; }
+        
+        .vip-global-update-description {
+            background: rgba(255,215,0,0.1);
+            border-radius: 25px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid rgba(255,215,0,0.5);
+        }
+        
+        .vip-global-update-description-title { color: #ffd700; font-size: 18px; margin-bottom: 15px; }
+        .vip-global-update-description-text { color: white; font-size: 15px; line-height: 1.6; }
+        
+        .vip-global-update-link-container {
+            background: rgba(0,0,0,0.9);
+            border-radius: 25px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 3px solid #4caf50;
+        }
+        
+        .vip-global-update-link { color: #4caf50; font-size: 14px; word-break: break-all; flex: 1; }
+        .vip-global-update-copy-btn { background: linear-gradient(135deg, #4caf50, #2e7d32); color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .vip-global-update-close-btn { background: linear-gradient(135deg, #ff3333, #b30000); color: white; border: none; padding: 16px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%; margin-top: 20px; border: 2px solid #ffd700; }
+        
+        /* ========== SALDO CARD ========== */
+        .saldo-container {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 100;
+            display: none;
+        }
+        
+        .saldo-card {
+            background: linear-gradient(135deg, #1a1a1a, #2a0a0a);
+            border: 2px solid #ff4444;
+            border-radius: 30px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .saldo-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,68,68,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff4444;
+        }
+        
+        .saldo-info { flex: 1; }
+        .saldo-label { font-size: 10px; color: #aaa; }
+        .saldo-amount { font-size: 16px; font-weight: bold; color: #ff4444; }
+        
+        .deposit-btn {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            border: none;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 3px;
+        }
+        
+        /* ========== LANGUAGE SWITCHER ========== */
+        .language-switcher {
+            position: fixed;
+            top: 12px;
+            right: 175px;
+            z-index: 100;
+        }
+        
+        .lang-btn {
+            background: rgba(255,68,68,0.8);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 6px 14px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .lang-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: rgba(0,0,0,0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid #ff4444;
+            display: none;
+            min-width: 150px;
+        }
+        
+        .lang-dropdown.show { display: block; }
+        
+        .lang-option {
+            padding: 12px 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,68,68,0.2);
+        }
+        
+        .lang-option:hover { background: rgba(255,68,68,0.2); }
+        .lang-flag { width: 22px; height: 16px; border-radius: 3px; object-fit: cover; }
+        
+        /* ========== ADMIN STATUS ========== */
+        .admin-status {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.8);
+            padding: 8px 16px;
+            border-radius: 30px;
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-online { background: #4caf50; box-shadow: 0 0 15px #4caf50; }
+        .status-offline { background: #f44336; box-shadow: 0 0 15px #f44336; }
+        
+        /* ========== UID POPUP ========== */
+        .uid-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20000;
+            padding: 16px;
+        }
+        
+        .uid-popup.hide { display: none; }
+        
+        .uid-popup-content {
+            background: linear-gradient(145deg, #1a0a0a, #2a0a0a);
+            border: 3px solid #ff4444;
+            border-radius: 40px;
+            padding: 40px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .uid-popup-title { font-size: 28px; color: #ff4444; margin-bottom: 10px; }
+        .uid-popup-subtitle { color: #aaa; margin-bottom: 20px; }
+        
+        .uid-popup-input {
+            width: 100%;
+            padding: 16px;
+            background: #000;
+            border: 2px solid #ff4444;
+            border-radius: 20px;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        
+        .error-msg, .success-msg {
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .error-msg { background: rgba(244,67,54,0.2); border: 2px solid #f44336; color: #f44336; }
+        .success-msg { background: rgba(76,175,80,0.2); border: 2px solid #4caf50; color: #4caf50; }
+        
+        .uid-popup-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        /* ========== UID CARD ========== */
+        .uid-card {
+            background: #1a1a1a;
+            border: 2px solid #ff4444;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .uid-title { color: #ff4444; font-weight: bold; margin-bottom: 10px; }
+        
+        .uid-value {
+            font-family: monospace;
+            font-size: 18px;
+            background: #000;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #ff4444;
+            margin: 10px 0;
+            cursor: pointer;
+            word-break: break-all;
+        }
+        
+        .uid-buttons { display: flex; gap: 10px; justify-content: center; }
+        .uid-btn { padding: 8px 20px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+        .copy-btn { background: #4caf50; color: white; }
+        .change-btn { background: #ffaa00; color: black; }
+        
+        /* ========== UPDATE COUNTER (BATASAN UPDATE) ========== */
+        .update-counter {
+            background: linear-gradient(135deg, #1a1a1a, #1a2a1a);
+            border: 3px solid #4caf50;
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+        }
+        
+        .update-counter::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(76,175,80,0.1) 0%, transparent 70%);
+            animation: rotateCounter 20s linear infinite;
+        }
+        
+        @keyframes rotateCounter {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .counter-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .counter-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(76,175,80,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #4caf50;
+            border: 2px solid #4caf50;
+        }
+        
+        .counter-title {
+            flex: 1;
+        }
+        
+        .counter-title-main {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4caf50;
+            margin-bottom: 5px;
+        }
+        
+        .counter-title-sub {
+            font-size: 13px;
+            color: #aaa;
+        }
+        
+        .counter-badge {
+            background: rgba(255,215,0,0.2);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .counter-main {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .counter-display {
+            font-size: 48px;
+            font-weight: 900;
+            color: #4caf50;
+            font-family: monospace;
+            text-shadow: 0 0 20px rgba(76,175,80,0.5);
+            line-height: 1.2;
+        }
+        
+        .counter-label {
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .counter-progress-container {
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+            border: 2px solid rgba(76,175,80,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .counter-progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #aaa;
+        }
+        
+        .counter-progress {
+            height: 12px;
+            background: #333;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .counter-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .counter-stat {
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            padding: 15px 10px;
+            text-align: center;
+            border: 2px solid rgba(76,175,80,0.3);
+        }
+        
+        .counter-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+            font-family: monospace;
+        }
+        
+        .counter-stat-label {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .counter-warning {
+            background: rgba(255,152,0,0.2);
+            border: 2px solid #ff9800;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #ff9800;
+            font-size: 14px;
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .counter-danger {
+            background: rgba(244,67,54,0.2);
+            border: 2px solid #f44336;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #f44336;
+            font-size: 14px;
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .counter-expiry {
+            background: rgba(33,150,243,0.2);
+            border: 2px solid #2196f3;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #2196f3;
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .counter-permanent {
+            background: rgba(255,215,0,0.2);
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+            color: #ffd700;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .counter-permanent i {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        /* ========== UPLOAD PROGRESS ========== */
+        .upload-progress {
+            background: #1a1a1a;
+            border: 2px solid #4caf50;
+            border-radius: 16px;
+            padding: 15px;
+            margin: 10px 0;
+            display: none;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .upload-progress.active { display: block; }
+        
+        .upload-progress-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .upload-progress-icon { 
+            font-size: 24px; 
+            color: #4caf50; 
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .upload-progress-filename { 
+            flex: 1; 
+            color: #4caf50; 
+            font-weight: bold; 
+            word-break: break-all;
+            font-size: 13px;
+        }
+        
+        .upload-progress-cancel { 
+            background: #f44336; 
+            color: white; 
+            border: none; 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 50%; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .upload-progress-bar-container {
+            margin-top: 10px;
+        }
+        
+        .upload-progress-bar-bg { 
+            height: 10px; 
+            background: #333; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            position: relative;
+        }
+        
+        .upload-progress-bar-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, #4caf50, #8bc34a); 
+            width: 0%; 
+            transition: width 0.2s;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .upload-progress-percent { 
+            text-align: right; 
+            font-size: 14px; 
+            color: #4caf50; 
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
+        .upload-progress-speed {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 3px;
+            text-align: right;
+        }
+        
+        /* ========== IMAGE PREVIEW ========== */
+        .image-preview {
+            background: #1a1a1a;
+            border: 2px solid #ffaa00;
+            border-radius: 16px;
+            padding: 15px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .image-preview.active { display: block; }
+        
+        .image-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .image-preview-title { color: #ffaa00; font-weight: bold; }
+        .image-preview-close { background: #f44336; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+        .image-preview-img { width: 100%; max-height: 300px; object-fit: contain; border-radius: 12px; }
+        
+        /* ========== FILE GALLERY ========== */
+        .file-gallery {
+            background: #1a1a1a;
+            border: 2px solid #9c27b0;
+            border-radius: 20px;
+            padding: 16px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .file-gallery.active { display: block; }
+        
+        .gallery-title { color: #9c27b0; font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        
+        .gallery-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .gallery-tab {
+            flex: 1;
+            background: #000;
+            border: 2px solid #9c27b0;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .gallery-tab.active { background: #9c27b0; }
+        
+        .gallery-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .gallery-item {
+            background: #000;
+            border-radius: 12px;
+            padding: 10px;
+            border: 2px solid #9c27b0;
+        }
+        
+        .gallery-item-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .gallery-item-name { color: #9c27b0; font-size: 12px; margin: 8px 0; word-break: break-all; }
+        .gallery-item-size { color: #aaa; font-size: 10px; }
+        
+        .gallery-download-btn {
+            background: linear-gradient(135deg, #9c27b0, #6a1b9a);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            width: 100%;
+            margin-top: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        /* ========== TRANSACTION GALLERY ========== */
+        .transaction-gallery {
+            background: #1a1a1a;
+            border: 2px solid #ff9800;
+            border-radius: 20px;
+            padding: 16px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .transaction-gallery.active { display: block; }
+        
+        .transaction-title { color: #ff9800; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        
+        .transaction-list { max-height: 400px; overflow-y: auto; }
+        
+        .transaction-item {
+            background: #000;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 5px solid;
+        }
+        
+        .transaction-item.pending { border-left-color: #ff9800; }
+        .transaction-item.approved { border-left-color: #4caf50; }
+        .transaction-item.rejected { border-left-color: #f44336; }
+        
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .transaction-method { font-weight: bold; color: #ff9800; }
+        
+        .transaction-status {
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+        }
+        
+        .status-pending { background: #ff9800; color: black; }
+        .status-approved { background: #4caf50; color: white; }
+        .status-rejected { background: #f44336; color: white; }
+        
+        .transaction-details { font-size: 13px; color: #aaa; margin: 8px 0; }
+        .transaction-amount { font-size: 18px; font-weight: bold; color: #fff; }
+        
+        /* ========== PACKAGE SECTION ========== */
+        .package-section {
+            background: #1a1a1a;
+            border: 2px solid #2196f3;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .package-title { color: #2196f3; font-weight: bold; margin-bottom: 10px; }
+        .package-input { width: 100%; padding: 12px; background: #000; border: 2px solid #2196f3; border-radius: 10px; color: white; font-size: 16px; }
+        
+        /* ========== DISCOUNT SECTION ========== */
+        .discount-section {
+            background: #1a1a1a;
+            border: 2px solid #ffaa00;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .discount-title { color: #ffaa00; font-weight: bold; margin-bottom: 10px; }
+        
+        .discount-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .discount-input {
+            flex: 1;
+            padding: 12px;
+            background: #000;
+            border: 2px solid #ffaa00;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .discount-apply {
+            background: linear-gradient(135deg, #ffaa00, #ff8800);
+            border: none;
+            color: black;
+            padding: 0 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .discount-info {
+            margin-top: 15px;
+            padding: 12px;
+            background: #000;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .discount-info.active { display: block; }
+        
+        .discount-detail { color: #ffaa00; font-size: 14px; margin-bottom: 5px; }
+        .original-price { color: #aaa; text-decoration: line-through; font-size: 13px; }
+        .final-price { color: #4caf50; font-size: 18px; font-weight: bold; }
+        
+        /* ========== FEATURES GRID ========== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            background: #1a1a1a;
+            border: 1px solid #ff4444;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .feature-icon { font-size: 20px; color: #ff4444; margin-bottom: 5px; }
+        .feature-name { font-size: 11px; color: #fff; }
+        
+        /* ========== PRICE GRID ========== */
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .price-card {
+            background: #1a1a1a;
+            border: 2px solid #ff4444;
+            border-radius: 15px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .price-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,68,68,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: 0.5s;
+        }
+        
+        .price-card:hover::before {
+            opacity: 1;
+            animation: rotate 10s linear infinite;
+        }
+        
+        .price-card.selected {
+            border-color: #4caf50;
+            background: #2a2a2a;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(76,175,80,0.3);
+        }
+        
+        .price-amount { font-size: 20px; font-weight: bold; color: #ff4444; }
+        .price-type { font-size: 12px; color: #aaa; margin: 5px 0; }
+        .price-updates { font-size: 14px; color: #fff; margin: 8px 0; font-weight: bold; }
+        
+        /* Paket spesial styling */
+        .price-card[data-price="20000"] .price-updates { color: #ffaa00; }
+        .price-card[data-price="35000"] .price-updates { color: #ffaa00; }
+        .price-card[data-price="50000"] .price-updates { color: #ffaa00; }
+        .price-card[data-price="100000"] .price-updates { color: #2196f3; }
+        .price-card[data-price="150000"] .price-updates { color: #9c27b0; }
+        .price-card[data-price="200000"] .price-updates { color: #ffd700; }
+        
+        /* ========== ORDER SUMMARY ========== */
+        .order-summary {
+            background: #1a1a1a;
+            border: 2px solid #ffaa00;
+            border-radius: 20px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        
+        .summary-title { color: #ffaa00; font-weight: bold; margin-bottom: 15px; }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .summary-item:last-child { border-bottom: none; }
+        .summary-label { color: #aaa; }
+        .summary-value { font-weight: bold; }
+        
+        /* ========== ACTION BUTTONS ========== */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .buy-btn { background: linear-gradient(135deg, #ff4444, #cc0000); color: white; }
+        .reset-btn { background: #333; color: white; border: 2px solid #666; }
+        
+        /* ========== PURCHASE HISTORY ========== */
+        .history-section {
+            background: #1a1a1a;
+            border: 2px solid #2196f3;
+            border-radius: 20px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        
+        .history-title { color: #2196f3; font-weight: bold; margin-bottom: 15px; }
+        .history-list { max-height: 300px; overflow-y: auto; }
+        
+        .history-item {
+            background: #000;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .history-item.pending { border-left-color: #ffaa00; }
+        .history-item.approved { border-left-color: #4caf50; }
+        .history-item.rejected { border-left-color: #f44336; }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .history-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        .status-pending { background: #ffaa00; color: black; }
+        .status-approved { background: #4caf50; color: white; }
+        .status-rejected { background: #f44336; color: white; }
+        
+        /* ========== CHAT WITH ADMIN ========== */
+        .chat-container {
+            background: #1a1a1a;
+            border: 2px solid #ff4444;
+            border-radius: 20px;
+            padding: 16px;
+            margin: 20px 0;
+            height: 450px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ff4444;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            background: #000;
+            border-radius: 12px;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .message {
+            padding: 8px 12px;
+            border-radius: 12px;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+        
+        .message.customer { background: #ff4444; align-self: flex-end; }
+        .message.admin { background: #2196f3; align-self: flex-start; }
+        .message.system { background: #ffaa00; align-self: center; color: black; font-style: italic; }
+        
+        .message-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+        
+        .message-file {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-top: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .chat-input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            background: #000;
+            border: 2px solid #ff4444;
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .chat-attach { background: #ffaa00; border: none; color: black; padding: 0 15px; border-radius: 10px; cursor: pointer; font-size: 18px; }
+        .chat-send { background: #4caf50; border: none; color: white; padding: 0 20px; border-radius: 10px; cursor: pointer; font-size: 18px; }
+        
+        /* ========== DEPOSIT POPUP ========== */
+        .deposit-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 16px;
+            display: none;
+        }
+        
+        .deposit-popup.active { display: flex; }
+        
+        .deposit-content {
+            background: linear-gradient(145deg, #1a0a0a, #2a0a0a);
+            border: 3px solid #ff4444;
+            border-radius: 30px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .deposit-title { font-size: 24px; color: #ff4444; text-align: center; margin-bottom: 20px; }
+        .deposit-input { width: 100%; padding: 12px; background: #000; border: 2px solid #ff4444; border-radius: 12px; color: white; margin-bottom: 12px; }
+        
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .payment-method {
+            background: #000;
+            border: 2px solid #ff4444;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .payment-method.selected { background: #ff4444; color: black; }
+        
+        .destination-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #000;
+            border: 2px solid #ffaa00;
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin: 10px 0;
+        }
+        
+        .destination-number {
+            flex: 1;
+            font-family: monospace;
+            color: #ffaa00;
+            font-size: 16px;
+            user-select: all;
+        }
+        
+        .copy-dest-btn {
+            background: #ffaa00;
+            border: none;
+            color: black;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .amount-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .amount-preset {
+            background: #000;
+            border: 2px solid #ff4444;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .amount-preset.selected { background: #ff4444; }
+        
+        .deposit-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .deposit-btn-primary {
+            flex: 1;
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .deposit-btn-secondary {
+            flex: 1;
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* ========== TOAST ========== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: 2px solid #ff4444;
+            z-index: 1000000;
+            display: none;
+        }
+        
+        .toast.show { display: block; }
+        
+        /* ========== FOOTER ========== */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #aaa;
+            font-size: 12px;
+            border-top: 2px solid rgba(255,68,68,0.2);
+        }
+        
+        /* Hidden elements */
+        #mainContent, #saldoContainer, #adminStatus {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Background -->
+    <div class="sharingan-bg">
+        <div class="sharingan">
+            <div class="tomoe"></div>
+            <div class="tomoe"></div>
+            <div class="tomoe"></div>
+        </div>
+    </div>
+
+    <!-- MAINTENANCE PAGE -->
+    <div class="maintenance-page" id="maintenancePage">
+        <div class="maintenance-content">
+            <div class="maintenance-icon"><i class="fas fa-tools"></i></div>
+            <h1 class="maintenance-title" id="maintenanceTitle">MAINTENANCE MODE</h1>
+            <p class="maintenance-message" id="maintenanceMessage">Sistem sedang dalam pemeliharaan.</p>
+            <div class="maintenance-timer-container">
+                <div class="maintenance-timer-title">Estimasi Selesai:</div>
+                <div class="maintenance-timer" id="maintenanceTimer">00:00:00</div>
+                <div class="maintenance-progress">
+                    <div class="maintenance-progress-bar" id="maintenanceProgress"></div>
+                </div>
+            </div>
+            <div class="maintenance-info">
+                <div class="maintenance-info-item">
+                    <div class="maintenance-info-label">Dimulai</div>
+                    <div class="maintenance-info-value" id="maintenanceStart">-</div>
+                </div>
+                <div class="maintenance-info-item">
+                    <div class="maintenance-info-label">Estimasi Selesai</div>
+                    <div class="maintenance-info-value" id="maintenanceEnd">-</div>
+                </div>
+            </div>
+            <button class="maintenance-refresh-btn" onclick="checkMaintenanceStatus()"><i class="fas fa-sync-alt"></i> REFRESH</button>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION POPUP -->
+    <div class="notification-popup" id="notificationPopup">
+        <div class="notification-title"><i class="fas fa-bell"></i> <span id="notifTitle">Informasi</span></div>
+        <div class="notification-message" id="notifMessage">Memuat...</div>
+        <div class="notification-date"><i class="far fa-calendar-alt"></i> <span id="notifDate">-</span></div>
+        <div class="notification-close" onclick="closeNotification()">TUTUP</div>
+    </div>
+
+    <!-- APP UPDATE POPUP -->
+    <div class="app-update-popup" id="appUpdatePopup">
+        <div class="app-update-content">
+            <div class="app-update-icon"><i class="fas fa-rocket"></i></div>
+            <div class="app-update-title" id="appUpdateTitle">UPDATE APK</div>
+            <div class="app-update-detail">
+                <div class="app-update-row"><span class="app-update-label">Pesan:</span> <span class="app-update-value" id="appUpdateMessage">-</span></div>
+                <div class="app-update-row"><span class="app-update-label">Versi Baru:</span> <span class="app-update-value" id="appUpdateNewVersion">-</span></div>
+                <div class="app-update-row"><span class="app-update-label">Versi Lama:</span> <span class="app-update-value" id="appUpdateOldVersion">-</span></div>
+                <div class="app-update-row"><span class="app-update-label">Tanggal:</span> <span class="app-update-value" id="appUpdateDate">-</span></div>
+            </div>
+            <button class="app-upgrade-btn" id="appUpgradeBtn" onclick="upgradeApp()"><i class="fas fa-download"></i> UPDATE</button>
+            <button class="app-update-close" onclick="closeAppUpdatePopup()">NANTI SAJA</button>
+        </div>
+    </div>
+
+    <!-- VIP UPDATE POPUP (HANYA UNTUK VIP) -->
+    <div class="vip-update-popup" id="vipUpdatePopup">
+        <div class="vip-update-content">
+            <div class="vip-update-header">
+                <div class="vip-update-icon"><i class="fas fa-crown"></i></div>
+                <div>
+                    <div class="vip-update-title" id="vipUpdateTitle">VIP UPDATE</div>
+                    <span class="vip-update-badge">VIP EXCLUSIVE</span>
+                </div>
+            </div>
+            <div class="vip-update-info-grid">
+                <div class="vip-update-info-item">
+                    <div class="vip-update-info-label"><i class="fas fa-tag"></i> VERSION</div>
+                    <div class="vip-update-info-value" id="vipUpdateVersion">v1.0.0</div>
+                </div>
+                <div class="vip-update-info-item">
+                    <div class="vip-update-info-label"><i class="fas fa-clock"></i> TANGGAL</div>
+                    <div class="vip-update-info-value" id="vipUpdateDate">-</div>
+                </div>
+            </div>
+            <div class="vip-update-description">
+                <div class="vip-update-description-title"><i class="fas fa-file-alt"></i> DESKRIPSI</div>
+                <div class="vip-update-description-text" id="vipUpdateDescription">-</div>
+            </div>
+            <div class="vip-update-link-container">
+                <div class="vip-update-link" id="vipUpdateLink">https://www.mediafire.com/folder/example</div>
+                <button class="vip-update-copy-btn" onclick="copyVipUpdateLink()"><i class="fas fa-copy"></i> SALIN</button>
+            </div>
+            <button class="vip-update-close-btn" onclick="closeVipUpdatePopup()"><i class="fas fa-check-circle"></i> TUTUP</button>
+        </div>
+    </div>
+
+    <!-- VIP GLOBAL UPDATE POPUP (HANYA UNTUK VIP) -->
+    <div class="vip-global-update-popup" id="vipGlobalUpdatePopup">
+        <div class="vip-global-update-content">
+            <div class="vip-global-update-header">
+                <div class="vip-global-update-icon"><i class="fas fa-crown"></i></div>
+                <div class="vip-global-update-title-section">
+                    <div class="vip-global-update-title" id="vipGlobalUpdateTitle">VIP UPDATE TERSEDIA!</div>
+                    <span class="vip-global-update-badge">VIP EXCLUSIVE</span>
+                </div>
+            </div>
+            <div class="vip-global-update-grid">
+                <div class="vip-global-update-item">
+                    <div class="vip-global-update-item-label"><i class="fas fa-tag"></i> VERSION</div>
+                    <div class="vip-global-update-item-value" id="vipGlobalUpdateVersion">v2.5.0</div>
+                </div>
+                <div class="vip-global-update-item">
+                    <div class="vip-global-update-item-label"><i class="fas fa-calendar-alt"></i> TANGGAL</div>
+                    <div class="vip-global-update-item-value" id="vipGlobalUpdateDate">-</div>
+                </div>
+                <div class="vip-global-update-item">
+                    <div class="vip-global-update-item-label"><i class="fas fa-clock"></i> WAKTU</div>
+                    <div class="vip-global-update-item-value" id="vipGlobalUpdateTime">-</div>
+                </div>
+                <div class="vip-global-update-item">
+                    <div class="vip-global-update-item-label"><i class="fas fa-database"></i> SIZE</div>
+                    <div class="vip-global-update-item-value" id="vipGlobalUpdateSize">~15 MB</div>
+                </div>
+            </div>
+            <div class="vip-global-update-description">
+                <div class="vip-global-update-description-title"><i class="fas fa-file-alt"></i> DESKRIPSI</div>
+                <div class="vip-global-update-description-text" id="vipGlobalUpdateDescription">-</div>
+            </div>
+            <div class="vip-global-update-link-container">
+                <div class="vip-global-update-link" id="vipGlobalUpdateLink">https://www.mediafire.com/folder/example</div>
+                <button class="vip-global-update-copy-btn" onclick="copyVipGlobalUpdateLink()"><i class="fas fa-copy"></i> SALIN</button>
+            </div>
+            <button class="vip-global-update-close-btn" onclick="closeVipGlobalUpdatePopup()"><i class="fas fa-check-circle"></i> TUTUP</button>
+        </div>
+    </div>
+
+    <!-- SALDO CONTAINER -->
+    <div class="saldo-container" id="saldoContainer">
+        <div class="saldo-card">
+            <div class="saldo-icon"><i class="fas fa-wallet"></i></div>
+            <div class="saldo-info">
+                <div class="saldo-label">SALDO ANDA</div>
+                <div class="saldo-amount" id="saldoAmount">Rp 0</div>
+                <button class="deposit-btn" onclick="showDepositPopup()"><i class="fas fa-plus-circle"></i> DEPOSIT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LANGUAGE SWITCHER -->
+    <div class="language-switcher">
+        <button class="lang-btn" onclick="toggleLanguageDropdown()">
+            <i class="fas fa-globe"></i> <span id="currentLang">ID</span> <i class="fas fa-chevron-down"></i>
+        </button>
+        <div class="lang-dropdown" id="langDropdown">
+            <div class="lang-option" onclick="changeLanguage('id')"><img src="https://flagcdn.com/w20/id.png" class="lang-flag"> Indonesia</div>
+            <div class="lang-option" onclick="changeLanguage('en')"><img src="https://flagcdn.com/w20/gb.png" class="lang-flag"> English</div>
+            <div class="lang-option" onclick="changeLanguage('es')"><img src="https://flagcdn.com/w20/es.png" class="lang-flag"> Español</div>
+            <div class="lang-option" onclick="changeLanguage('ar')"><img src="https://flagcdn.com/w20/sa.png" class="lang-flag"> العربية</div>
+        </div>
+    </div>
+
+    <!-- ADMIN STATUS -->
+    <div class="admin-status" id="adminStatus">
+        <div class="status-indicator" id="adminStatusDot"></div>
+        <span id="adminStatusText">Admin: Offline</span>
+    </div>
+
+    <!-- UID POPUP -->
+    <div class="uid-popup" id="uidPopup">
+        <div class="uid-popup-content">
+            <div class="uid-popup-title">👑 VIP FILES</div>
+            <div class="uid-popup-subtitle">Masukkan UID Anda</div>
+            <input type="text" class="uid-popup-input" id="uidInput" placeholder="Contoh: VIP_ABC123" maxlength="50">
+            <div class="error-msg" id="uidError"></div>
+            <div class="success-msg" id="uidSuccess"></div>
+            <button class="uid-popup-btn" onclick="login()">MASUK</button>
+        </div>
+    </div>
+
+    <!-- DEPOSIT POPUP -->
+    <div class="deposit-popup" id="depositPopup">
+        <div class="deposit-content">
+            <h2 class="deposit-title">💰 DEPOSIT</h2>
+            <p style="color:#aaa; text-align:center; margin-bottom:15px;">Minimal Rp 20.000</p>
+            
+            <input type="text" class="deposit-input" id="depositNama" placeholder="Nama Pengirim">
+            <input type="text" class="deposit-input" id="depositNoEwallet" placeholder="No. E-Wallet">
+            
+            <div class="payment-methods">
+                <div class="payment-method" onclick="selectPayment('DANA', '0881011076305', this)">DANA</div>
+                <div class="payment-method" onclick="selectPayment('GOPAY', '083126486017', this)">GOPAY</div>
+                <div class="payment-method" onclick="selectPayment('QRIS', 'HUBUNGI ADMIN', this)">QRIS</div>
+                <div class="payment-method" onclick="selectPayment('PAYPAL', 'HUBUNGI ADMIN', this)">PAYPAL</div>
+            </div>
+            
+            <input type="hidden" id="depositMetode">
+            <input type="hidden" id="depositNomorTujuan">
+            
+            <div class="destination-row" id="destinationRow" style="display: none;">
+                <span class="destination-number" id="destinationNumber">0881011076305</span>
+                <button class="copy-dest-btn" onclick="copyDestinationNumber()">
+                    <i class="fas fa-copy"></i> SALIN
+                </button>
+            </div>
+            
+            <div class="amount-presets">
+                <div class="amount-preset" onclick="setAmount(20000, this)">20K</div>
+                <div class="amount-preset" onclick="setAmount(50000, this)">50K</div>
+                <div class="amount-preset" onclick="setAmount(100000, this)">100K</div>
+                <div class="amount-preset" onclick="setAmount(200000, this)">200K</div>
+                <div class="amount-preset" onclick="setAmount(500000, this)">500K</div>
+                <div class="amount-preset" onclick="setAmount(1000000, this)">1JT</div>
+            </div>
+            
+            <input type="number" class="deposit-input" id="depositJumlah" placeholder="Jumlah" min="20000">
+            <input type="text" class="deposit-input" id="depositCatatan" placeholder="Catatan (opsional)">
+            
+            <div class="deposit-buttons">
+                <button class="deposit-btn-primary" onclick="submitDeposit()">KIRIM</button>
+                <button class="deposit-btn-secondary" onclick="closeDepositPopup()">BATAL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="container" id="mainContent">
+        <!-- UID CARD -->
+        <div class="uid-card">
+            <div class="uid-title"><i class="fas fa-id-card"></i> UID ANDA</div>
+            <div class="uid-value" id="uidDisplay" onclick="copyUID()"></div>
+            <div class="uid-buttons">
+                <button class="uid-btn copy-btn" onclick="copyUID()"><i class="fas fa-copy"></i> Salin</button>
+                <button class="uid-btn change-btn" onclick="showUidPopup()"><i class="fas fa-exchange-alt"></i> Ganti</button>
+            </div>
+        </div>
+
+        <!-- UPDATE COUNTER (BATASAN UPDATE) -->
+        <div class="update-counter" id="updateCounter">
+            <div class="counter-header">
+                <div class="counter-icon">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <div class="counter-title">
+                    <div class="counter-title-main" id="counterTitle">STATUS UPDATE</div>
+                    <div class="counter-title-sub" id="counterSub">Memuat data...</div>
+                </div>
+                <div class="counter-badge" id="counterBadge">VIP</div>
+            </div>
+            
+            <div class="counter-main">
+                <div class="counter-display" id="updateDisplay">0/0</div>
+                <div class="counter-label" id="updateLabel">Sisa Update</div>
+            </div>
+            
+            <div class="counter-progress-container">
+                <div class="counter-progress-header">
+                    <span id="progressLabel">Penggunaan Update</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="counter-progress">
+                    <div class="progress-bar" id="updateProgress"></div>
+                </div>
+            </div>
+            
+            <div class="counter-stats">
+                <div class="counter-stat">
+                    <div class="counter-stat-value" id="statUsed">0</div>
+                    <div class="counter-stat-label">Digunakan</div>
+                </div>
+                <div class="counter-stat">
+                    <div class="counter-stat-value" id="statTotal">0</div>
+                    <div class="counter-stat-label">Total</div>
+                </div>
+                <div class="counter-stat">
+                    <div class="counter-stat-value" id="statRemaining">0</div>
+                    <div class="counter-stat-label">Sisa</div>
+                </div>
+            </div>
+            
+            <div class="counter-warning" id="updateWarning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="warningText">Sisa update tinggal sedikit! Segera perpanjang.</span>
+            </div>
+            
+            <div class="counter-danger" id="updateDanger">
+                <i class="fas fa-times-circle"></i>
+                <span id="dangerText">Update telah habis! Silakan beli paket baru.</span>
+            </div>
+            
+            <div class="counter-expiry" id="updateExpiry">
+                <span><i class="fas fa-clock"></i> <span id="expiryText">Berlaku hingga: -</span></span>
+                <span id="expiryDays">-</span>
+            </div>
+            
+            <div class="counter-permanent" id="updatePermanent">
+                <i class="fas fa-crown"></i>
+                <div>✨ VIP PERMANENT ✨</div>
+                <div style="font-size: 14px; margin-top: 5px;">Unlimited Update Seumur Hidup</div>
+            </div>
+        </div>
+
+        <!-- UPLOAD PROGRESS -->
+        <div class="upload-progress" id="uploadProgress">
+            <div class="upload-progress-header">
+                <div class="upload-progress-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <div class="upload-progress-filename" id="uploadFileName">file.txt</div>
+                <button class="upload-progress-cancel" onclick="cancelUpload()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="upload-progress-bar-container">
+                <div class="upload-progress-bar-bg">
+                    <div class="upload-progress-bar-fill" id="uploadProgressBar"></div>
+                </div>
+                <div class="upload-progress-percent" id="uploadPercent">0%</div>
+                <div class="upload-progress-speed" id="uploadSpeed">0 KB/s</div>
+            </div>
+        </div>
+
+        <!-- IMAGE PREVIEW -->
+        <div class="image-preview" id="imagePreview">
+            <div class="image-preview-header">
+                <span class="image-preview-title"><i class="fas fa-image"></i> PREVIEW GAMBAR</span>
+                <button class="image-preview-close" onclick="closeImagePreview()"><i class="fas fa-times"></i></button>
+            </div>
+            <img src="" alt="Preview" class="image-preview-img" id="previewImage">
+        </div>
+
+        <!-- FILE GALLERY -->
+        <div class="file-gallery" id="fileGallery">
+            <div class="gallery-title"><i class="fas fa-images"></i> GALERI FILE</div>
+            <div class="gallery-tabs">
+                <button class="gallery-tab active" onclick="switchGalleryTab('files')">FILE</button>
+                <button class="gallery-tab" onclick="switchGalleryTab('photos')">FOTO</button>
+            </div>
+            <div id="galleryFiles" class="gallery-content"></div>
+            <div id="galleryPhotos" class="gallery-content" style="display:none;"></div>
+        </div>
+
+        <!-- TRANSACTION GALLERY -->
+        <div class="transaction-gallery" id="transactionGallery">
+            <div class="transaction-title"><i class="fas fa-receipt"></i> RIWAYAT TRANSAKSI</div>
+            <div class="transaction-list" id="transactionList"></div>
+        </div>
+
+        <!-- PACKAGE INPUT -->
+        <div class="package-section">
+            <div class="package-title"><i class="fas fa-cube"></i> PACKAGE NAME</div>
+            <input type="text" class="package-input" id="packageName" placeholder="Contoh: com.game.package" value="com.vip.injector">
+        </div>
+
+        <!-- DISCOUNT SECTION -->
+        <div class="discount-section">
+            <div class="discount-title"><i class="fas fa-ticket-alt"></i> KODE DISKON</div>
+            <div class="discount-input-group">
+                <input type="text" class="discount-input" id="discountCode" placeholder="Masukkan kode diskon">
+                <button class="discount-apply" onclick="applyDiscount()">PAKAI</button>
+            </div>
+            <div class="discount-info" id="discountInfo">
+                <div class="discount-detail" id="discountDetail"></div>
+                <div class="original-price" id="originalPrice"></div>
+                <div class="final-price" id="finalPrice"></div>
+            </div>
+        </div>
+
+        <!-- VIP FEATURES -->
+        <h3 style="color:#ff4444; margin:20px 0 10px; text-align:center">✨ VIP FEATURES</h3>
+        <div class="features-grid" id="featuresGrid"></div>
+
+        <!-- PRICE GRID -->
+        <h3 style="color:#ff4444; margin:20px 0 10px; text-align:center">💎 PAKET VIP</h3>
+        <div class="price-grid" id="priceGrid">
+            <!-- Akan diisi oleh JavaScript -->
+        </div>
+
+        <!-- ORDER SUMMARY -->
+        <div class="order-summary">
+            <div class="summary-title">📋 RINGKASAN ORDER</div>
+            <div class="summary-item">
+                <span class="summary-label">Paket:</span>
+                <span class="summary-value" id="summaryPackage">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Harga Asli:</span>
+                <span class="summary-value" id="summaryOriginal">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Diskon:</span>
+                <span class="summary-value" id="summaryDiscount">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Total:</span>
+                <span class="summary-value" id="summaryTotal">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Package:</span>
+                <span class="summary-value" id="summaryPackageName">-</span>
+            </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="action-buttons">
+            <button class="action-btn buy-btn" onclick="buyVIP()"><i class="fas fa-shopping-cart"></i> BELI SEKARANG</button>
+            <button class="action-btn reset-btn" onclick="resetSelection()"><i class="fas fa-redo"></i> RESET</button>
+        </div>
+
+        <!-- PURCHASE HISTORY -->
+        <div class="history-section">
+            <div class="history-title"><i class="fas fa-history"></i> RIWAYAT PEMBELIAN</div>
+            <div class="history-list" id="historyList">
+                <div style="text-align:center; color:#aaa; padding:20px;">Belum ada transaksi</div>
+            </div>
+        </div>
+
+        <!-- CHAT WITH ADMIN -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <span><i class="fas fa-comments"></i> CHAT ADMIN</span>
+                <span id="chatAdminStatus">🟢 Online</span>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div style="text-align:center; color:#aaa;">Selamat datang! Silakan chat dengan admin</div>
+            </div>
+            <div class="chat-input-group">
+                <input type="file" id="fileInput" style="display:none" onchange="handleFileSelect()">
+                <button class="chat-attach" onclick="document.getElementById('fileInput').click()"><i class="fas fa-paperclip"></i></button>
+                <input type="text" class="chat-input" id="chatInput" placeholder="Ketik pesan...">
+                <button class="chat-send" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <p>© 2026 VIP FILES - All Rights Reserved</p>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9Gfb83b8QhsImdpun5fPuSAcoQ5UxcXI",
+            authDomain: "admincontrol-485eb.firebaseapp.com",
+            databaseURL: "https://admincontrol-485eb-default-rtdb.firebaseio.com",
+            projectId: "admincontrol-485eb",
+            storageBucket: "admincontrol-485eb.firebasestorage.app",
+            messagingSenderId: "1051199942261",
+            appId: "1:1051199942261:web:ccbd0947ce39b2e8c4923c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const storage = firebase.storage();
+
+        // ==================== GLOBAL VARIABLES ====================
+        let currentUID = '';
+        let currentSaldo = 0;
+        let selectedPrice = 0;
+        let selectedUpdates = '';
+        let activeDiscount = null;
+        let discounts = {};
+        let vipPackages = [];
+        let adminOnline = false;
+        let currentUploadTask = null;
+        let maintenanceTimerInterval = null;
+        let maintenanceEndTime = null;
+        let maintenanceTotalDuration = 0;
+        let isVIP = false;
+        let uploadStartTime = 0;
+        
+        // Data VIP user dengan quota
+        let userVIPData = {
+            type: null, // 'quota', 'duration', 'lifetime'
+            used: 0,
+            total: 0,
+            remaining: 0,
+            expiryDate: null,
+            packageName: '',
+            isPermanent: false,
+            durationMonths: null
+        };
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔥 VIP FILES - USER PANEL');
+            loadPackages();
+            loadDiscounts();
+            checkSavedUID();
+            monitorAdminStatus();
+            checkMaintenanceStatus();
+            listenNotifications();
+            listenAppUpdate();
+            listenVipUpdates();
+            listenVipGlobalUpdates();
+            loadFeatures();
+            loadGallery();
+            
+            // Untuk testing (HAPUS NANTI)
+            window.testVIP = function(type) {
+                if (type === 'quota') {
+                    updateUserVIPData({
+                        type: 'quota',
+                        used: 3,
+                        total: 10,
+                        remaining: 7
+                    });
+                } else if (type === 'duration') {
+                    updateUserVIPData({
+                        type: 'duration',
+                        expiryDate: new Date(Date.now() + 60*24*60*60*1000).toISOString(), // 60 hari lagi
+                        durationMonths: 2
+                    });
+                } else if (type === 'lifetime') {
+                    updateUserVIPData({
+                        type: 'lifetime',
+                        isPermanent: true
+                    });
+                }
+                showToast('🔧 TEST: Data VIP diupdate');
+            };
+        });
+
+        // ==================== LOAD FEATURES ====================
+        function loadFeatures() {
+            const features = [
+                { icon: 'fa-crosshairs', name: 'AimAssist' },
+                { icon: 'fa-bullseye', name: 'AimLock' },
+                { icon: 'fa-skull', name: 'AimHead' },
+                { icon: 'fa-water', name: 'AimFlow' },
+                { icon: 'fa-tachometer-alt', name: 'FiksLag' },
+                { icon: 'fa-shield-alt', name: 'No Recoil' },
+                { icon: 'fa-satellite-dish', name: 'BulletTrack' },
+                { icon: 'fa-bolt', name: 'HighDamage' },
+                { icon: 'fa-chart-line', name: 'FPS Boost' },
+                { icon: 'fa-unlock-alt', name: 'Bypass' },
+                { icon: 'fa-shield', name: 'Anti Ban' },
+                { icon: 'fa-save', name: 'Save Acc' }
+            ];
+            
+            let html = '';
+            features.forEach(f => {
+                html += `
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas ${f.icon}"></i></div>
+                        <div class="feature-name">${f.name}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('featuresGrid').innerHTML = html;
+        }
+
+        // ==================== LOAD PACKAGES ====================
+        function loadPackages() {
+            vipPackages = [
+                { price: 20000, quota: 2, label: '2X UPDATE', type: 'quota', badge: 'QUOTA' },
+                { price: 35000, quota: 4, label: '4X UPDATE', type: 'quota', badge: 'QUOTA' },
+                { price: 50000, quota: 6, label: '6X UPDATE', type: 'quota', badge: 'QUOTA' },
+                { price: 100000, months: 2, label: '2 BULAN', type: 'duration', badge: 'UNLIMITED' },
+                { price: 150000, months: 4, label: '4 BULAN', type: 'duration', badge: 'UNLIMITED' },
+                { price: 200000, label: 'SEUMUR HIDUP', type: 'lifetime', badge: 'PERMANENT' }
+            ];
+            
+            let html = '';
+            vipPackages.forEach(pkg => {
+                html += `
+                    <div class="price-card" data-price="${pkg.price}" data-type="${pkg.type}" onclick="selectPackage(this)">
+                        <div class="price-amount">Rp ${formatRupiah(pkg.price)}</div>
+                        <div class="price-type">${pkg.badge}</div>
+                        <div class="price-updates">${pkg.label}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('priceGrid').innerHTML = html;
+        }
+
+        // ==================== UPDATE USER VIP DATA ====================
+        function updateUserVIPData(data) {
+            userVIPData = { ...userVIPData, ...data };
+            isVIP = true;
+            updateCounterDisplay();
+        }
+
+        // ==================== UPDATE COUNTER DISPLAY ====================
+        function updateCounterDisplay() {
+            const counter = document.getElementById('updateCounter');
+            const display = document.getElementById('updateDisplay');
+            const label = document.getElementById('updateLabel');
+            const progress = document.getElementById('updateProgress');
+            const progressPercent = document.getElementById('progressPercent');
+            const warning = document.getElementById('updateWarning');
+            const danger = document.getElementById('updateDanger');
+            const expiry = document.getElementById('updateExpiry');
+            const permanent = document.getElementById('updatePermanent');
+            const statUsed = document.getElementById('statUsed');
+            const statTotal = document.getElementById('statTotal');
+            const statRemaining = document.getElementById('statRemaining');
+            const counterBadge = document.getElementById('counterBadge');
+            const counterTitle = document.getElementById('counterTitle');
+            const counterSub = document.getElementById('counterSub');
+            const expiryText = document.getElementById('expiryText');
+            const expiryDays = document.getElementById('expiryDays');
+            const warningText = document.getElementById('warningText');
+            const dangerText = document.getElementById('dangerText');
+            
+            counter.style.display = 'block';
+            warning.style.display = 'none';
+            danger.style.display = 'none';
+            expiry.style.display = 'none';
+            permanent.style.display = 'none';
+            
+            if (userVIPData.type === 'quota') {
+                // Tampilan quota: used / total
+                counterTitle.innerText = 'SISA UPDATE (QUOTA)';
+                counterSub.innerText = 'Paket dengan batas update';
+                counterBadge.innerText = 'QUOTA';
+                counterBadge.style.background = 'rgba(76,175,80,0.2)';
+                counterBadge.style.color = '#4caf50';
+                counterBadge.style.borderColor = '#4caf50';
+                
+                const used = userVIPData.used || 0;
+                const total = userVIPData.total || 0;
+                const remaining = total - used;
+                
+                display.innerText = `${used}/${total}`;
+                label.innerText = 'Update Digunakan';
+                
+                // Stats
+                statUsed.innerText = used;
+                statTotal.innerText = total;
+                statRemaining.innerText = remaining;
+                
+                const percent = total > 0 ? (used / total) * 100 : 0;
+                progress.style.width = percent + '%';
+                progressPercent.innerText = percent.toFixed(1) + '%';
+                
+                if (remaining <= 0) {
+                    danger.style.display = 'flex';
+                    dangerText.innerText = 'Update telah habis! Silakan beli paket baru.';
+                    display.style.color = '#f44336';
+                } else if (remaining <= 2) {
+                    warning.style.display = 'flex';
+                    warningText.innerText = `Sisa ${remaining} update lagi! Segera perpanjang.`;
+                    display.style.color = '#ff9800';
+                } else {
+                    display.style.color = '#4caf50';
+                }
+                
+            } else if (userVIPData.type === 'duration') {
+                // Tampilan durasi: sisa hari
+                counterTitle.innerText = 'SISA WAKTU (UNLIMITED)';
+                counterSub.innerText = 'Update unlimited selama masa aktif';
+                counterBadge.innerText = 'UNLIMITED';
+                counterBadge.style.background = 'rgba(33,150,243,0.2)';
+                counterBadge.style.color = '#2196f3';
+                counterBadge.style.borderColor = '#2196f3';
+                
+                const now = new Date();
+                const expiryDate = new Date(userVIPData.expiryDate);
+                const daysLeft = Math.ceil((expiryDate - now) / (1000*60*60*24));
+                const hoursLeft = Math.floor((expiryDate - now) / (1000*60*60)) % 24;
+                
+                display.innerText = `${daysLeft} Hari`;
+                label.innerText = 'Sisa Masa Aktif';
+                
+                // Stats
+                statUsed.innerText = '∞';
+                statTotal.innerText = '∞';
+                statRemaining.innerText = '∞';
+                
+                const totalDays = userVIPData.durationMonths * 30;
+                const daysPassed = totalDays - daysLeft;
+                const percent = totalDays > 0 ? (daysPassed / totalDays) * 100 : 0;
+                progress.style.width = percent + '%';
+                progressPercent.innerText = percent.toFixed(1) + '%';
+                
+                expiry.style.display = 'flex';
+                expiryText.innerText = `Berlaku hingga: ${expiryDate.toLocaleDateString('id-ID')}`;
+                expiryDays.innerText = daysLeft <= 0 ? 'EXPIRED' : `${daysLeft} hari lagi`;
+                
+                if (daysLeft <= 0) {
+                    danger.style.display = 'flex';
+                    dangerText.innerText = 'Masa aktif VIP telah habis! Silakan perpanjang.';
+                    display.style.color = '#f44336';
+                    expiry.style.backgroundColor = 'rgba(244,67,54,0.2)';
+                    expiry.style.borderColor = '#f44336';
+                    expiry.style.color = '#f44336';
+                } else if (daysLeft <= 7) {
+                    warning.style.display = 'flex';
+                    warningText.innerText = `Sisa ${daysLeft} hari lagi! Segera perpanjang.`;
+                    display.style.color = '#ff9800';
+                    expiry.style.backgroundColor = 'rgba(255,152,0,0.2)';
+                    expiry.style.borderColor = '#ff9800';
+                    expiry.style.color = '#ff9800';
+                } else {
+                    display.style.color = '#2196f3';
+                    expiry.style.backgroundColor = 'rgba(33,150,243,0.2)';
+                    expiry.style.borderColor = '#2196f3';
+                    expiry.style.color = '#2196f3';
+                }
+                
+            } else if (userVIPData.type === 'lifetime') {
+                // Tampilan lifetime
+                counterTitle.innerText = 'VIP PERMANENT';
+                counterSub.innerText = 'Unlimited update selamanya';
+                counterBadge.innerText = 'PERMANENT';
+                counterBadge.style.background = 'rgba(255,215,0,0.2)';
+                counterBadge.style.color = '#ffd700';
+                counterBadge.style.borderColor = '#ffd700';
+                
+                display.innerText = '∞';
+                label.innerText = 'Update Unlimited';
+                
+                // Stats
+                statUsed.innerText = '∞';
+                statTotal.innerText = '∞';
+                statRemaining.innerText = '∞';
+                
+                progress.style.width = '100%';
+                progressPercent.innerText = '100%';
+                display.style.color = '#ffd700';
+                
+                permanent.style.display = 'block';
+            }
+        }
+
+        // ==================== CEK UPDATE SEBELUM KIRIM ====================
+        function canReceiveUpdate() {
+            if (!isVIP) {
+                showToast('❌ Anda bukan VIP');
+                return false;
+            }
+            
+            if (userVIPData.type === 'quota') {
+                const remaining = (userVIPData.total || 0) - (userVIPData.used || 0);
+                if (remaining <= 0) {
+                    showToast('❌ Update quota telah habis! Silakan beli paket baru.');
+                    return false;
+                }
+                return true;
+                
+            } else if (userVIPData.type === 'duration') {
+                const now = new Date();
+                const expiry = new Date(userVIPData.expiryDate);
+                if (expiry < now) {
+                    showToast('❌ Masa aktif VIP telah habis!');
+                    return false;
+                }
+                return true;
+                
+            } else if (userVIPData.type === 'lifetime') {
+                return true;
+            }
+            
+            return false;
+        }
+
+        // ==================== TAMBAH UPDATE USED ====================
+        function incrementUpdateUsed() {
+            if (userVIPData.type === 'quota') {
+                userVIPData.used = (userVIPData.used || 0) + 1;
+                userVIPData.remaining = (userVIPData.total || 0) - userVIPData.used;
+                updateCounterDisplay();
+                
+                // Simpan ke Firebase
+                database.ref(`vip_members/${currentUID}`).update({
+                    updatesUsed: userVIPData.used
+                });
+            }
+        }
+
+        // ==================== MAINTENANCE FUNCTIONS ====================
+        function checkMaintenanceStatus() {
+            database.ref('maintenance').once('value').then((snapshot) => {
+                const maintenance = snapshot.val();
+                if (maintenance && maintenance.status === 'active') {
+                    showMaintenancePage(maintenance);
+                } else {
+                    document.getElementById('maintenancePage').classList.remove('active');
+                }
+            });
+        }
+
+        function showMaintenancePage(maintenance) {
+            document.getElementById('maintenancePage').classList.add('active');
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('uidPopup').classList.add('hide');
+            document.getElementById('saldoContainer').style.display = 'none';
+            document.getElementById('adminStatus').style.display = 'none';
+            
+            document.getElementById('maintenanceTitle').innerText = maintenance.title || 'MAINTENANCE MODE';
+            document.getElementById('maintenanceMessage').innerText = maintenance.message || 'Sistem sedang dalam pemeliharaan.';
+            
+            if (maintenance.startTime) {
+                document.getElementById('maintenanceStart').innerText = new Date(maintenance.startTime).toLocaleString();
+            }
+            if (maintenance.endTime) {
+                maintenanceEndTime = new Date(maintenance.endTime);
+                document.getElementById('maintenanceEnd').innerText = maintenanceEndTime.toLocaleString();
+            }
+            if (maintenance.totalMinutes) {
+                maintenanceTotalDuration = maintenance.totalMinutes * 60 * 1000;
+            }
+            
+            updateMaintenanceTimer();
+            if (maintenanceTimerInterval) clearInterval(maintenanceTimerInterval);
+            maintenanceTimerInterval = setInterval(updateMaintenanceTimer, 1000);
+        }
+
+        function updateMaintenanceTimer() {
+            if (!maintenanceEndTime) return;
+            const now = new Date();
+            const remaining = maintenanceEndTime - now;
+            
+            if (remaining <= 0) {
+                document.getElementById('maintenanceTimer').innerText = '00:00:00';
+                document.getElementById('maintenanceProgress').style.width = '100%';
+                clearInterval(maintenanceTimerInterval);
+                return;
+            }
+            
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+            
+            document.getElementById('maintenanceTimer').innerText = 
+                `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+            
+            if (maintenanceTotalDuration > 0) {
+                const elapsed = maintenanceTotalDuration - remaining;
+                const progress = (elapsed / maintenanceTotalDuration) * 100;
+                document.getElementById('maintenanceProgress').style.width = `${Math.min(progress, 100)}%`;
+            }
+        }
+
+        // ==================== NOTIFICATION FUNCTIONS ====================
+        function listenNotifications() {
+            database.ref('notifications/latest').on('value', (snapshot) => {
+                const notif = snapshot.val();
+                if (notif && notif.active) {
+                    document.getElementById('notifTitle').innerText = notif.title || 'Informasi';
+                    document.getElementById('notifMessage').innerText = notif.message || 'Tidak ada pesan.';
+                    document.getElementById('notifDate').innerText = notif.date ? new Date(notif.date).toLocaleString('id-ID') : new Date().toLocaleString('id-ID');
+                    document.getElementById('notificationPopup').classList.add('active');
+                }
+            });
+        }
+
+        function closeNotification() {
+            document.getElementById('notificationPopup').classList.remove('active');
+        }
+
+        // ==================== APP UPDATE FUNCTIONS ====================
+        function listenAppUpdate() {
+            database.ref('app_update').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.active) {
+                    document.getElementById('appUpdateTitle').innerText = data.title || 'UPDATE APK TERSEDIA';
+                    document.getElementById('appUpdateMessage').innerText = data.message || 'Performa ditingkatkan';
+                    document.getElementById('appUpdateNewVersion').innerText = data.newVersion || 'v2.0.0';
+                    document.getElementById('appUpdateOldVersion').innerText = data.oldVersion || 'v1.0.0';
+                    document.getElementById('appUpdateDate').innerText = data.date ? new Date(data.date).toLocaleDateString('id-ID') : new Date().toLocaleDateString('id-ID');
+                    document.getElementById('appUpgradeBtn').setAttribute('data-link', data.link || '#');
+                    document.getElementById('appUpdatePopup').classList.add('active');
+                }
+            });
+        }
+
+        function upgradeApp() {
+            const link = document.getElementById('appUpgradeBtn').getAttribute('data-link');
+            if (link && link !== '#') window.open(link, '_blank');
+            else showToast('Link belum tersedia');
+        }
+
+        function closeAppUpdatePopup() {
+            document.getElementById('appUpdatePopup').classList.remove('active');
+        }
+
+        // ==================== VIP UPDATE FUNCTIONS ====================
+        function listenVipUpdates() {
+            if (!isVIP) return;
+            
+            database.ref('vip_updates').on('child_added', (snapshot) => {
+                const update = snapshot.val();
+                if (!update || !update.active) return;
+                
+                // Cek apakah masih bisa menerima update
+                if (!canReceiveUpdate()) {
+                    showToast('❌ Tidak dapat menerima update: ' + 
+                        (userVIPData.type === 'quota' ? 'Quota habis' : 'Masa aktif habis'));
+                    return;
+                }
+                
+                showVipUpdatePopup(update);
+            });
+        }
+
+        function showVipUpdatePopup(update) {
+            document.getElementById('vipUpdateTitle').innerText = update.title || 'VIP UPDATE';
+            document.getElementById('vipUpdateVersion').innerText = update.version || 'v1.0.0';
+            document.getElementById('vipUpdateDate').innerText = update.date ? new Date(update.date).toLocaleDateString('id-ID') : new Date().toLocaleDateString('id-ID');
+            document.getElementById('vipUpdateDescription').innerText = update.description || 'Tidak ada deskripsi.';
+            document.getElementById('vipUpdateLink').innerText = update.link || 'https://www.mediafire.com/folder/example';
+            document.getElementById('vipUpdatePopup').classList.add('active');
+            
+            // Tambah used jika quota
+            incrementUpdateUsed();
+            
+            showToast('📢 Update VIP baru tersedia!');
+        }
+
+        function closeVipUpdatePopup() {
+            document.getElementById('vipUpdatePopup').classList.remove('active');
+        }
+
+        function copyVipUpdateLink() {
+            const link = document.getElementById('vipUpdateLink').innerText;
+            copyToClipboard(link, 'Link disalin ke clipboard');
+        }
+
+        // ==================== VIP GLOBAL UPDATE FUNCTIONS ====================
+        function listenVipGlobalUpdates() {
+            if (!isVIP) return;
+            
+            database.ref('global_updates').on('child_added', (snapshot) => {
+                const update = snapshot.val();
+                if (!update) return;
+                
+                // Cek apakah masih bisa menerima update
+                if (!canReceiveUpdate()) {
+                    showToast('❌ Tidak dapat menerima update: ' + 
+                        (userVIPData.type === 'quota' ? 'Quota habis' : 'Masa aktif habis'));
+                    return;
+                }
+                
+                showVipGlobalUpdatePopup(update);
+            });
+        }
+
+        function showVipGlobalUpdatePopup(update) {
+            document.getElementById('vipGlobalUpdateTitle').innerText = update.title || 'VIP UPDATE TERSEDIA!';
+            document.getElementById('vipGlobalUpdateVersion').innerText = update.version || 'v2.5.0';
+            document.getElementById('vipGlobalUpdateDate').innerText = update.date || new Date().toLocaleDateString('id-ID');
+            document.getElementById('vipGlobalUpdateTime').innerText = update.time || new Date().toLocaleTimeString('id-ID');
+            document.getElementById('vipGlobalUpdateSize').innerText = update.size || '~15 MB';
+            document.getElementById('vipGlobalUpdateDescription').innerText = update.description || 'Tidak ada deskripsi.';
+            document.getElementById('vipGlobalUpdateLink').innerText = update.link || 'https://www.mediafire.com/folder/example';
+            document.getElementById('vipGlobalUpdatePopup').classList.add('active');
+            
+            // Tambah used jika quota
+            incrementUpdateUsed();
+            
+            showToast('📢 Global update VIP baru tersedia!');
+        }
+
+        function closeVipGlobalUpdatePopup() {
+            document.getElementById('vipGlobalUpdatePopup').classList.remove('active');
+        }
+
+        function copyVipGlobalUpdateLink() {
+            const link = document.getElementById('vipGlobalUpdateLink').innerText;
+            copyToClipboard(link, 'Link disalin ke clipboard');
+        }
+
+        // ==================== COPY TO CLIPBOARD ====================
+        function copyToClipboard(text, successMessage) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        showToast(successMessage || 'Berhasil disalin');
+                    })
+                    .catch(() => {
+                        fallbackCopy(text, successMessage);
+                    });
+            } else {
+                fallbackCopy(text, successMessage);
+            }
+        }
+
+        function fallbackCopy(text, successMessage) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast(successMessage || 'Berhasil disalin');
+                } else {
+                    showToast('Gagal menyalin, silakan salin manual');
+                }
+            } catch (err) {
+                showToast('Gagal menyalin teks');
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        function copyDestinationNumber() {
+            const destElement = document.getElementById('destinationNumber');
+            const number = destElement.innerText;
+            
+            if (!number || number === 'HUBUNGI ADMIN' || number === '') {
+                showToast('❌ Nomor tidak tersedia');
+                return;
+            }
+            
+            copyToClipboard(number, '✅ Nomor berhasil disalin!');
+            
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> TERSALIN';
+            btn.style.background = '#4caf50';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-copy"></i> SALIN';
+                btn.style.background = '#ffaa00';
+            }, 2000);
+        }
+
+        function copyUID() {
+            copyToClipboard(currentUID, 'UID disalin ke clipboard');
+        }
+
+        // ==================== LOAD GALLERY ====================
+        function loadGallery() {
+            const galleryFiles = [
+                { name: 'config.ini', size: '2.5 KB', url: '#' },
+                { name: 'settings.dat', size: '1.2 MB', url: '#' },
+                { name: 'script.lua', size: '5 KB', url: '#' }
+            ];
+            
+            const galleryPhotos = [
+                { name: 'screenshot1.jpg', size: '120 KB', url: 'https://via.placeholder.com/300' },
+                { name: 'screenshot2.jpg', size: '150 KB', url: 'https://via.placeholder.com/300' },
+                { name: 'preview.png', size: '80 KB', url: 'https://via.placeholder.com/300' }
+            ];
+            
+            let filesHtml = '';
+            galleryFiles.forEach(file => {
+                filesHtml += `
+                    <div class="gallery-item">
+                        <div class="gallery-item-name"><i class="fas fa-file"></i> ${file.name}</div>
+                        <div class="gallery-item-size">${file.size}</div>
+                        <button class="gallery-download-btn" onclick="downloadFile('${file.url}', '${file.name}')">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                `;
+            });
+            document.getElementById('galleryFiles').innerHTML = filesHtml;
+            
+            let photosHtml = '';
+            galleryPhotos.forEach(photo => {
+                photosHtml += `
+                    <div class="gallery-item">
+                        <img src="${photo.url}" class="gallery-item-image" onclick="viewImage('${photo.url}')">
+                        <div class="gallery-item-name">${photo.name}</div>
+                        <div class="gallery-item-size">${photo.size}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('galleryPhotos').innerHTML = photosHtml;
+        }
+
+        function switchGalleryTab(tab) {
+            document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('galleryFiles').style.display = tab === 'files' ? 'grid' : 'none';
+            document.getElementById('galleryPhotos').style.display = tab === 'photos' ? 'grid' : 'none';
+        }
+
+        function downloadFile(url, name) {
+            if (url && url !== '#') {
+                window.open(url, '_blank');
+            } else {
+                showToast('File tidak tersedia');
+            }
+        }
+
+        function viewImage(url) {
+            document.getElementById('previewImage').src = url;
+            document.getElementById('imagePreview').classList.add('active');
+        }
+
+        function closeImagePreview() {
+            document.getElementById('imagePreview').classList.remove('active');
+        }
+
+        // ==================== LOAD DISCOUNTS ====================
+        function loadDiscounts() {
+            database.ref('discounts').on('value', (snapshot) => {
+                discounts = snapshot.val() || {};
+                console.log('📋 Diskon tersedia:', Object.keys(discounts).length);
+            });
+        }
+
+        // ==================== CHECK SAVED UID ====================
+        function checkSavedUID() {
+            const saved = localStorage.getItem('vip_files_uid');
+            if (saved) {
+                document.getElementById('uidInput').value = saved;
+            }
+        }
+
+        // ==================== LOGIN ====================
+        function login() {
+            const uid = document.getElementById('uidInput').value.trim();
+            
+            if (!uid.startsWith('VIP_')) {
+                showError('UID harus diawali VIP_');
+                return;
+            }
+            
+            if (uid.length < 8) {
+                showError('UID minimal 8 karakter');
+                return;
+            }
+            
+            showSuccess('Memeriksa UID...');
+            
+            database.ref('customers/' + uid).once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    currentUID = uid;
+                    showSuccess('UID ditemukan!');
+                } else {
+                    const newCustomer = {
+                        uid: uid,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        firstLogin: new Date().toISOString()
+                    };
+                    return database.ref('customers/' + uid).set(newCustomer).then(() => {
+                        currentUID = uid;
+                        showSuccess('UID baru dibuat!');
+                    });
+                }
+            }).then(() => {
+                localStorage.setItem('vip_files_uid', uid);
+                setTimeout(() => {
+                    document.getElementById('uidPopup').classList.add('hide');
+                    document.getElementById('mainContent').style.display = 'block';
+                    document.getElementById('saldoContainer').style.display = 'block';
+                    document.getElementById('adminStatus').style.display = 'flex';
+                    document.getElementById('uidDisplay').innerText = uid;
+                    
+                    startSession();
+                }, 1000);
+            }).catch(error => {
+                showError('Error: ' + error.message);
+            });
+        }
+
+        function showError(msg) {
+            document.getElementById('uidError').style.display = 'block';
+            document.getElementById('uidError').innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + msg;
+            document.getElementById('uidSuccess').style.display = 'none';
+        }
+
+        function showSuccess(msg) {
+            document.getElementById('uidSuccess').style.display = 'block';
+            document.getElementById('uidSuccess').innerHTML = '<i class="fas fa-check-circle"></i> ' + msg;
+            document.getElementById('uidError').style.display = 'none';
+        }
+
+        function showUidPopup() {
+            document.getElementById('uidPopup').classList.remove('hide');
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('saldoContainer').style.display = 'none';
+            document.getElementById('adminStatus').style.display = 'none';
+            document.getElementById('uidInput').value = '';
+        }
+
+        // ==================== CEK STATUS VIP DARI FIREBASE ====================
+        function loadVIPDataFromFirebase() {
+            database.ref('vip_members/' + currentUID).once('value').then((snapshot) => {
+                const vip = snapshot.val();
+                if (vip && vip.status === 'active') {
+                    if (vip.updateType === 'quota') {
+                        updateUserVIPData({
+                            type: 'quota',
+                            used: vip.updatesUsed || 0,
+                            total: vip.updateQuota || 0,
+                            remaining: (vip.updateQuota || 0) - (vip.updatesUsed || 0),
+                            packageName: vip.package,
+                            expiryDate: vip.expiryDate
+                        });
+                    } else if (vip.updateType === 'unlimited') {
+                        if (vip.isPermanent) {
+                            updateUserVIPData({
+                                type: 'lifetime',
+                                isPermanent: true,
+                                packageName: vip.package
+                            });
+                        } else {
+                            updateUserVIPData({
+                                type: 'duration',
+                                expiryDate: vip.expiryDate,
+                                durationMonths: vip.durationMonths,
+                                packageName: vip.package
+                            });
+                        }
+                    }
+                    
+                    // Aktifkan listener update VIP
+                    listenVipUpdates();
+                    listenVipGlobalUpdates();
+                }
+            });
+        }
+
+        // ==================== START SESSION ====================
+        function startSession() {
+            monitorSaldo();
+            monitorPurchases();
+            monitorTransactions();
+            monitorAdminStatus();
+            setupChatListener();
+            
+            // Load data VIP
+            loadVIPDataFromFirebase();
+            
+            database.ref('customers/' + currentUID).update({
+                lastActive: firebase.database.ServerValue.TIMESTAMP,
+                lastLogin: new Date().toISOString()
+            });
+        }
+
+        // ==================== MONITOR SALDO ====================
+        function monitorSaldo() {
+            database.ref('saldo/' + currentUID).on('value', (snapshot) => {
+                const data = snapshot.val();
+                currentSaldo = data ? data.amount : 0;
+                document.getElementById('saldoAmount').innerText = 'Rp ' + formatRupiah(currentSaldo);
+            });
+        }
+
+        // ==================== MONITOR PURCHASES ====================
+        function monitorPurchases() {
+            database.ref('purchases/' + currentUID).on('value', (snapshot) => {
+                const purchases = snapshot.val();
+                const historyList = document.getElementById('historyList');
+                
+                if (purchases) {
+                    let html = '';
+                    const purchaseArray = [];
+                    
+                    Object.keys(purchases).forEach(key => {
+                        purchaseArray.push({
+                            id: key,
+                            ...purchases[key]
+                        });
+                    });
+                    
+                    purchaseArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    
+                    purchaseArray.slice(0, 10).forEach(p => {
+                        const status = p.status || 'pending';
+                        const date = p.purchaseTime ? new Date(p.purchaseTime).toLocaleDateString('id-ID') : '';
+                        
+                        let packageInfo = '';
+                        if (p.price === 20000) packageInfo = '2x Update';
+                        else if (p.price === 35000) packageInfo = '4x Update';
+                        else if (p.price === 50000) packageInfo = '6x Update';
+                        else if (p.price === 100000) packageInfo = '2 Bulan Unlimited';
+                        else if (p.price === 150000) packageInfo = '4 Bulan Unlimited';
+                        else if (p.price === 200000) packageInfo = 'Permanent';
+                        
+                        html += `
+                            <div class="history-item ${status}">
+                                <div class="history-header">
+                                    <span>VIP Package - ${packageInfo}</span>
+                                    <span class="history-status status-${status}">${status.toUpperCase()}</span>
+                                </div>
+                                <div>Rp ${formatRupiah(p.price || 0)}</div>
+                                <div style="font-size:11px; color:#aaa; margin-top:5px;">${date}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    historyList.innerHTML = html;
+                }
+            });
+        }
+
+        // ==================== MONITOR TRANSACTIONS ====================
+        function monitorTransactions() {
+            database.ref('deposits/' + currentUID).on('value', (snapshot) => {
+                const deposits = snapshot.val();
+                const transactionList = document.getElementById('transactionList');
+                
+                if (deposits) {
+                    document.getElementById('transactionGallery').style.display = 'block';
+                    let html = '';
+                    const depositArray = [];
+                    
+                    Object.keys(deposits).forEach(key => {
+                        depositArray.push({
+                            id: key,
+                            ...deposits[key]
+                        });
+                    });
+                    
+                    depositArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    
+                    depositArray.slice(0, 10).forEach(d => {
+                        const status = d.status || 'pending';
+                        const date = d.waktu ? new Date(d.waktu).toLocaleDateString('id-ID') : '';
+                        
+                        html += `
+                            <div class="transaction-item ${status}">
+                                <div class="transaction-header">
+                                    <span class="transaction-method">${d.metodePembayaran || 'Deposit'}</span>
+                                    <span class="transaction-status status-${status}">${status.toUpperCase()}</span>
+                                </div>
+                                <div class="transaction-amount">Rp ${formatRupiah(d.jumlah || 0)}</div>
+                                <div class="transaction-details">
+                                    ${d.namaPengirim ? `Pengirim: ${d.namaPengirim}<br>` : ''}
+                                    ${d.noEwallet ? `No: ${d.noEwallet}<br>` : ''}
+                                    ${date}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    transactionList.innerHTML = html;
+                }
+            });
+        }
+
+        // ==================== MONITOR ADMIN STATUS ====================
+        function monitorAdminStatus() {
+            database.ref('admin_status').on('value', (snapshot) => {
+                const status = snapshot.val();
+                if (status && status.status === 'online') {
+                    const lastSeen = status.last_seen;
+                    const now = Date.now();
+                    if (now - lastSeen < 5 * 60 * 1000) {
+                        adminOnline = true;
+                        document.getElementById('adminStatusDot').className = 'status-indicator status-online';
+                        document.getElementById('adminStatusText').innerText = 'Admin: Online';
+                        document.getElementById('chatAdminStatus').innerHTML = '🟢 Online';
+                    } else {
+                        adminOnline = false;
+                        document.getElementById('adminStatusDot').className = 'status-indicator status-offline';
+                        document.getElementById('adminStatusText').innerText = 'Admin: Offline';
+                        document.getElementById('chatAdminStatus').innerHTML = '🔴 Offline';
+                    }
+                } else {
+                    adminOnline = false;
+                    document.getElementById('adminStatusDot').className = 'status-indicator status-offline';
+                    document.getElementById('adminStatusText').innerText = 'Admin: Offline';
+                    document.getElementById('chatAdminStatus').innerHTML = '🔴 Offline';
+                }
+            });
+        }
+
+        // ==================== SELECT PACKAGE ====================
+        function selectPackage(element) {
+            document.querySelectorAll('.price-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            selectedPrice = parseInt(element.dataset.price);
+            
+            const pkg = vipPackages.find(p => p.price === selectedPrice);
+            if (pkg) {
+                if (pkg.type === 'quota') {
+                    selectedUpdates = `${pkg.quota}x Update`;
+                } else if (pkg.type === 'duration') {
+                    selectedUpdates = `${pkg.months} Bulan Unlimited`;
+                } else {
+                    selectedUpdates = 'Seumur Hidup Unlimited';
+                }
+            }
+            
+            updateSummary();
+        }
+
+        // ==================== APPLY DISCOUNT ====================
+        function applyDiscount() {
+            const code = document.getElementById('discountCode').value.trim().toUpperCase();
+            
+            if (!code) {
+                showToast('Masukkan kode diskon');
+                return;
+            }
+            
+            const discount = discounts[code];
+            const now = new Date();
+            
+            if (!discount) {
+                showToast('Kode diskon tidak valid');
+                return;
+            }
+            
+            if (!discount.active) {
+                showToast('Diskon sudah tidak aktif');
+                return;
+            }
+            
+            const expiryDate = new Date(discount.expiryDate);
+            if (expiryDate < now) {
+                showToast('Kode diskon sudah kadaluarsa');
+                return;
+            }
+            
+            if (selectedPrice < (discount.minPurchase || 0)) {
+                showToast(`Minimal pembelian Rp ${formatRupiah(discount.minPurchase)}`);
+                return;
+            }
+            
+            activeDiscount = discount;
+            
+            const info = document.getElementById('discountInfo');
+            const detail = document.getElementById('discountDetail');
+            const original = document.getElementById('originalPrice');
+            const final = document.getElementById('finalPrice');
+            
+            const originalPrice = selectedPrice;
+            const discountAmount = Math.floor(originalPrice * discount.percentage / 100);
+            const finalPrice = originalPrice - discountAmount;
+            
+            detail.innerHTML = `Diskon ${discount.percentage}% (Min. Rp ${formatRupiah(discount.minPurchase || 0)})`;
+            original.innerHTML = `Harga asli: Rp ${formatRupiah(originalPrice)}`;
+            final.innerHTML = `Harga setelah diskon: Rp ${formatRupiah(finalPrice)}`;
+            
+            info.classList.add('active');
+            
+            updateSummary();
+            showToast(`Diskon ${discount.percentage}% diterapkan!`);
+        }
+
+        // ==================== UPDATE SUMMARY ====================
+        function updateSummary() {
+            const packageName = document.getElementById('packageName').value.trim() || '-';
+            const originalPrice = selectedPrice || 0;
+            
+            let finalPrice = originalPrice;
+            let discountText = '-';
+            
+            if (activeDiscount && originalPrice > 0) {
+                const discountAmount = Math.floor(originalPrice * activeDiscount.percentage / 100);
+                finalPrice = originalPrice - discountAmount;
+                discountText = activeDiscount.percentage + '%';
+            }
+            
+            // Cari label paket
+            let packageLabel = '-';
+            const pkg = vipPackages.find(p => p.price === selectedPrice);
+            if (pkg) {
+                packageLabel = pkg.label;
+            }
+            
+            document.getElementById('summaryPackage').innerText = packageLabel;
+            document.getElementById('summaryOriginal').innerText = originalPrice ? 'Rp ' + formatRupiah(originalPrice) : '-';
+            document.getElementById('summaryDiscount').innerText = discountText;
+            document.getElementById('summaryTotal').innerText = finalPrice ? 'Rp ' + formatRupiah(finalPrice) : '-';
+            document.getElementById('summaryPackageName').innerText = packageName;
+        }
+
+        // ==================== BUY VIP ====================
+        function buyVIP() {
+            if (!selectedPrice) {
+                showToast('Pilih paket terlebih dahulu');
+                return;
+            }
+            
+            const packageName = document.getElementById('packageName').value.trim();
+            if (!packageName) {
+                showToast('Masukkan Package Name');
+                return;
+            }
+            
+            let finalPrice = selectedPrice;
+            if (activeDiscount) {
+                finalPrice = selectedPrice - Math.floor(selectedPrice * activeDiscount.percentage / 100);
+            }
+            
+            if (currentSaldo < finalPrice) {
+                showToast('Saldo tidak cukup');
+                showDepositPopup();
+                return;
+            }
+            
+            const pkg = vipPackages.find(p => p.price === selectedPrice);
+            
+            const purchaseData = {
+                uid: currentUID,
+                price: selectedPrice,
+                finalPrice: finalPrice,
+                packageInput: packageName,
+                packageType: pkg.type,
+                quota: pkg.quota || null,
+                months: pkg.months || null,
+                discountCode: activeDiscount ? activeDiscount.code : null,
+                discountPercentage: activeDiscount ? activeDiscount.percentage : 0,
+                status: 'pending',
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                purchaseTime: new Date().toISOString()
+            };
+            
+            const newSaldo = currentSaldo - finalPrice;
+            
+            database.ref('saldo/' + currentUID).update({ amount: newSaldo })
+                .then(() => {
+                    return database.ref('purchases/' + currentUID).push(purchaseData);
+                })
+                .then(() => {
+                    currentSaldo = newSaldo;
+                    showToast('Pembelian berhasil, menunggu persetujuan admin');
+                    
+                    const msg = {
+                        sender: 'system',
+                        text: `💰 PEMBELIAN VIP BARU\nUID: ${currentUID}\nPaket: ${pkg.label}\nHarga: Rp ${formatRupiah(finalPrice)}`,
+                        timestamp: new Date().toISOString()
+                    };
+                    return database.ref('chats/' + currentUID).push(msg);
+                })
+                .catch(error => {
+                    showToast('Error: ' + error.message);
+                });
+        }
+
+        // ==================== RESET SELECTION ====================
+        function resetSelection() {
+            document.querySelectorAll('.price-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('packageName').value = 'com.vip.injector';
+            document.getElementById('discountCode').value = '';
+            document.getElementById('discountInfo').classList.remove('active');
+            
+            selectedPrice = 0;
+            activeDiscount = null;
+            
+            updateSummary();
+        }
+
+        // ==================== CHAT FUNCTIONS ====================
+        function setupChatListener() {
+            database.ref('chats/' + currentUID).on('child_added', (snapshot) => {
+                const msg = snapshot.val();
+                displayMessage(msg);
+            });
+        }
+
+        function displayMessage(msg) {
+            const chatBox = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            
+            let senderClass = 'system';
+            if (msg.sender === 'customer') senderClass = 'customer';
+            else if (msg.sender === 'admin') senderClass = 'admin';
+            
+            div.className = `message ${senderClass}`;
+            
+            let content = '';
+            if (msg.text) {
+                content += msg.text.replace(/\n/g, '<br>');
+            }
+            
+            if (msg.fileData) {
+                if (msg.fileData.type && msg.fileData.type.startsWith('image/')) {
+                    content += `<br><img src="${msg.fileData.url}" class="message-image" onclick="viewImage('${msg.fileData.url}')">`;
+                } else {
+                    content += `<br><div class="message-file" onclick="window.open('${msg.fileData.url}')">
+                        <i class="fas fa-file"></i> ${msg.fileData.name}
+                    </div>`;
+                }
+            }
+            
+            div.innerHTML = content + `<div style="font-size:10px; opacity:0.7; margin-top:5px;">${new Date(msg.timestamp).toLocaleTimeString()}</div>`;
+            
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            const msg = {
+                sender: 'customer',
+                text: text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            database.ref('chats/' + currentUID).push(msg)
+                .then(() => {
+                    input.value = '';
+                })
+                .catch(error => {
+                    showToast('Gagal kirim: ' + error.message);
+                });
+        }
+
+        // ==================== FILE UPLOAD ====================
+        function handleFileSelect() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+            
+            // Cek apakah bisa upload (hanya VIP)
+            if (!canReceiveUpdate()) {
+                showToast('❌ Tidak dapat upload file: ' + 
+                    (userVIPData.type === 'quota' ? 'Quota habis' : 'Masa aktif habis'));
+                fileInput.value = '';
+                return;
+            }
+            
+            if (file.size > 50 * 1024 * 1024) {
+                showToast('File maksimal 50MB');
+                fileInput.value = '';
+                return;
+            }
+            
+            if (currentUploadTask) {
+                if (confirm('Upload sedang berlangsung. Batalkan?')) {
+                    currentUploadTask.cancel();
+                } else {
+                    return;
+                }
+            }
+            
+            const progressDiv = document.getElementById('uploadProgress');
+            const fileNameSpan = document.getElementById('uploadFileName');
+            const percentSpan = document.getElementById('uploadPercent');
+            const progressBar = document.getElementById('uploadProgressBar');
+            const speedSpan = document.getElementById('uploadSpeed');
+            
+            fileNameSpan.innerText = file.name.length > 30 ? file.name.substr(0,27) + '...' : file.name;
+            percentSpan.innerText = '0%';
+            progressBar.style.width = '0%';
+            speedSpan.innerText = '0 KB/s';
+            progressDiv.classList.add('active');
+            
+            progressDiv.scrollIntoView({ behavior: 'smooth' });
+            
+            const filePath = `chat_files/${currentUID}/${Date.now()}_${file.name}`;
+            const storageRef = storage.ref(filePath);
+            currentUploadTask = storageRef.put(file);
+            
+            uploadStartTime = Date.now();
+            
+            currentUploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    percentSpan.innerText = Math.round(progress) + '%';
+                    progressBar.style.width = progress + '%';
+                    
+                    const now = Date.now();
+                    const elapsedSeconds = (now - uploadStartTime) / 1000;
+                    const bytesPerSecond = snapshot.bytesTransferred / elapsedSeconds;
+                    const speedKB = bytesPerSecond / 1024;
+                    
+                    if (speedKB > 1024) {
+                        speedSpan.innerText = (speedKB / 1024).toFixed(1) + ' MB/s';
+                    } else {
+                        speedSpan.innerText = speedKB.toFixed(1) + ' KB/s';
+                    }
+                },
+                (error) => {
+                    console.error('Upload error:', error);
+                    progressDiv.classList.remove('active');
+                    showToast('Gagal upload: ' + error.message);
+                    currentUploadTask = null;
+                    fileInput.value = '';
+                },
+                () => {
+                    currentUploadTask.snapshot.ref.getDownloadURL().then(url => {
+                        const msg = {
+                            sender: 'customer',
+                            text: '📎 Mengirim file: ' + file.name,
+                            fileData: {
+                                name: file.name,
+                                url: url,
+                                size: file.size,
+                                type: file.type
+                            },
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        };
+                        
+                        database.ref('chats/' + currentUID).push(msg)
+                            .then(() => {
+                                showToast('✅ File terkirim!');
+                                progressDiv.classList.remove('active');
+                                
+                                // Tambah used untuk quota
+                                incrementUpdateUsed();
+                            })
+                            .catch(err => {
+                                showToast('❌ Gagal kirim pesan');
+                                progressDiv.classList.remove('active');
+                            });
+                        
+                        currentUploadTask = null;
+                        fileInput.value = '';
+                    });
+                }
+            );
+        }
+
+        function cancelUpload() {
+            if (currentUploadTask) {
+                currentUploadTask.cancel();
+                currentUploadTask = null;
+            }
+            document.getElementById('uploadProgress').classList.remove('active');
+            document.getElementById('fileInput').value = '';
+            showToast('Upload dibatalkan');
+        }
+
+        // ==================== DEPOSIT FUNCTIONS ====================
+        function showDepositPopup() {
+            resetDepositForm();
+            document.getElementById('depositPopup').classList.add('active');
+        }
+
+        function closeDepositPopup() {
+            document.getElementById('depositPopup').classList.remove('active');
+        }
+
+        function resetDepositForm() {
+            document.getElementById('depositNama').value = '';
+            document.getElementById('depositNoEwallet').value = '';
+            document.getElementById('depositJumlah').value = '';
+            document.getElementById('depositCatatan').value = '';
+            document.getElementById('depositMetode').value = '';
+            document.getElementById('depositNomorTujuan').value = '';
+            document.getElementById('destinationRow').style.display = 'none';
+            
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            document.querySelectorAll('.amount-preset').forEach(a => a.classList.remove('selected'));
+        }
+
+        function selectPayment(method, number, element) {
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            document.getElementById('depositMetode').value = method;
+            document.getElementById('depositNomorTujuan').value = number;
+            
+            const destRow = document.getElementById('destinationRow');
+            const destSpan = document.getElementById('destinationNumber');
+            
+            if (number !== 'HUBUNGI ADMIN') {
+                destSpan.innerText = number;
+                destRow.style.display = 'flex';
+                showToast(`💰 Metode ${method} dipilih`);
+            } else {
+                destRow.style.display = 'none';
+                showToast(`📱 Silakan hubungi admin untuk metode ${method}`);
+            }
+        }
+
+        function setAmount(amount, element) {
+            document.querySelectorAll('.amount-preset').forEach(a => a.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('depositJumlah').value = amount;
+        }
+
+        function submitDeposit() {
+            const nama = document.getElementById('depositNama').value.trim();
+            const noEwallet = document.getElementById('depositNoEwallet').value.trim();
+            const metode = document.getElementById('depositMetode').value;
+            const jumlah = parseInt(document.getElementById('depositJumlah').value);
+            const catatan = document.getElementById('depositCatatan').value.trim() || '-';
+            const nomorTujuan = document.getElementById('depositNomorTujuan').value;
+            
+            if (!nama || !noEwallet || !metode || !jumlah || jumlah < 20000) {
+                showToast('Isi semua field dengan benar (min 20rb)');
+                return;
+            }
+            
+            if (nomorTujuan === 'HUBUNGI ADMIN') {
+                showToast('Silakan chat admin untuk metode ' + metode);
+                closeDepositPopup();
+                return;
+            }
+            
+            const depositData = {
+                uid: currentUID,
+                namaPengirim: nama,
+                noEwallet: noEwallet,
+                metodePembayaran: metode,
+                nomorTujuan: nomorTujuan,
+                jumlah: jumlah,
+                catatan: catatan,
+                status: 'pending',
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                waktu: new Date().toISOString()
+            };
+            
+            database.ref('deposits/' + currentUID).push(depositData)
+                .then(() => {
+                    showToast('Deposit berhasil dikirim');
+                    closeDepositPopup();
+                    
+                    const msg = {
+                        sender: 'system',
+                        text: `💰 DEPOSIT BARU\nUID: ${currentUID}\nJumlah: Rp ${formatRupiah(jumlah)}\nMetode: ${metode}`,
+                        timestamp: new Date().toISOString()
+                    };
+                    return database.ref('chats/' + currentUID).push(msg);
+                })
+                .catch(error => {
+                    showToast('Error: ' + error.message);
+                });
+        }
+
+        // ==================== LANGUAGE FUNCTIONS ====================
+        function toggleLanguageDropdown() {
+            document.getElementById('langDropdown').classList.toggle('show');
+        }
+
+        function changeLanguage(lang) {
+            document.getElementById('currentLang').innerText = lang.toUpperCase();
+            toggleLanguageDropdown();
+            localStorage.setItem('vip_files_lang', lang);
+            showToast('Bahasa diubah ke ' + lang.toUpperCase());
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function formatRupiah(amount) {
+            if (amount >= 1000000) {
+                return (amount / 1000000).toFixed(1).replace('.', ',') + ' JT';
+            } else if (amount >= 1000) {
+                return (amount / 1000).toFixed(0) + ' RB';
+            }
+            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Click outside to close dropdown
+        document.addEventListener('click', function(e) {
+            const dd = document.getElementById('langDropdown');
+            const btn = document.querySelector('.lang-btn');
+            if (btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+                dd.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
